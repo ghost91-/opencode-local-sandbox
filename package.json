@@ -1,0 +1,60 @@
+{
+  "name": "opencode-local-sandbox",
+  "version": "0.0.0",
+  "private": false,
+  "description": "OpenCode plugin that adds a bash_sandboxed tool for running commands inside a local OS-level sandbox",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "imports": {
+    "#test/*": "./test/*.ts"
+  },
+  "exports": {
+    "./server": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./server": "./dist/index.js"
+    },
+    "main": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsgo -p tsconfig.build.json",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "knip": "knip",
+    "knip:fix": "knip --fix",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --type-aware --fix",
+    "test": "node --test",
+    "typecheck": "tsgo",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run knip && pnpm run test",
+    "check:fix": "pnpm run typecheck && pnpm run lint:fix && pnpm run format && pnpm run knip:fix && pnpm run test"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.30.0",
+    "@changesets/config": "^3.1.3",
+    "@opencode-ai/plugin": "^1.4.6",
+    "@opencode-ai/sdk": "^1.4.6",
+    "@types/node": "^24.12.2",
+    "@typescript/native-preview": "7.0.0-dev.20260416.1",
+    "effect": "4.0.0-beta.48",
+    "knip": "^6.4.1",
+    "oxfmt": "^0.45.0",
+    "oxlint": "^1.60.0",
+    "oxlint-tsgolint": "^0.21.1"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=1.4.6",
+    "effect": ">=4.0.0-beta.48"
+  },
+  "engines": {
+    "node": "^24",
+    "opencode": "^1.4.6"
+  },
+  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"
+}

@@ -1,0 +1,13 @@
+# dependencies (pnpm install)
+node_modules
+
+# build output
+dist
+
+# IDEs
+.idea
+.vscode
+.zed
+
+# Finder (MacOS) folder config
+.DS_Store
