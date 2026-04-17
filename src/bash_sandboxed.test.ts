@@ -1,3 +1,5 @@
+import type { ToolResult } from "@opencode-ai/plugin";
+
 import { stubEnv, unstubAllEnvs } from "#test/env";
 import { Effect } from "effect";
 import assert from "node:assert";
@@ -8,6 +10,10 @@ import { afterEach, describe, it } from "node:test";
 
 import { createBashSandboxedTool, buildCommand } from "./bash_sandboxed.ts";
 import { detectBackend, type SandboxBackend } from "./config.ts";
+
+function resultOutput(r: ToolResult): string {
+  return typeof r === "string" ? r : r.output;
+}
 
 afterEach(() => {
   unstubAllEnvs();
@@ -68,7 +74,7 @@ describe("execute", () => {
     const dir = await tmpdir();
     try {
       const t = createBashSandboxedTool(backend, "opencode");
-      const output = await t.execute(
+      const result = await t.execute(
         {
           command: "echo hello",
           description: "Print hello",
@@ -84,7 +90,7 @@ describe("execute", () => {
           ask: () => Effect.void,
         } as any,
       );
-      assert.ok(output.includes("hello"));
+      assert.ok(resultOutput(result).includes("hello"));
     } finally {
       await fs.rm(dir, { recursive: true, force: true });
     }
@@ -99,7 +105,7 @@ describe("execute", () => {
     await fs.mkdir(subdir);
     try {
       const t = createBashSandboxedTool(backend, "opencode");
-      const output = await t.execute(
+      const result = await t.execute(
         {
           command: "pwd",
           workdir: subdir,
@@ -116,7 +122,7 @@ describe("execute", () => {
           ask: () => Effect.void,
         } as any,
       );
-      assert.ok(output.includes("sub"));
+      assert.ok(resultOutput(result).includes("sub"));
     } finally {
       await fs.rm(dir, { recursive: true, force: true });
     }
@@ -129,7 +135,7 @@ describe("execute", () => {
     const dir = await tmpdir();
     try {
       const t = createBashSandboxedTool(backend, "opencode");
-      const output = await t.execute(
+      const result = await t.execute(
         {
           command: "sleep 10",
           timeout: 100,
@@ -146,8 +152,8 @@ describe("execute", () => {
           ask: () => Effect.void,
         } as any,
       );
-      assert.ok(output.includes("<bash_metadata>"));
-      assert.ok(output.includes("timeout"));
+      assert.ok(resultOutput(result).includes("<bash_metadata>"));
+      assert.ok(resultOutput(result).includes("timeout"));
     } finally {
       await fs.rm(dir, { recursive: true, force: true });
     }
@@ -178,9 +184,9 @@ describe("execute", () => {
         } as any,
       );
       setTimeout(() => ac.abort(), 100);
-      const output = await promise;
-      assert.ok(output.includes("<bash_metadata>"));
-      assert.ok(output.includes("aborted"));
+      const result = await promise;
+      assert.ok(resultOutput(result).includes("<bash_metadata>"));
+      assert.ok(resultOutput(result).includes("aborted"));
     } finally {
       await fs.rm(dir, { recursive: true, force: true });
     }
