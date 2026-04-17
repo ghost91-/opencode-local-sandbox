@@ -1,4 +1,4 @@
-import { tool, type ToolContext } from "@opencode-ai/plugin";
+import { tool, type ToolContext, type ToolResult } from "@opencode-ai/plugin";
 import { Effect } from "effect";
 import { spawn } from "node:child_process";
 import { resolve } from "node:path";
@@ -92,7 +92,7 @@ export function createBashSandboxedTool(backend: SandboxBackend, profile: string
           "Clear, concise description of what this command does in 5-10 words. Examples:\nInput: ls\nOutput: Lists files in current directory\n\nInput: git status\nOutput: Shows working tree status\n\nInput: npm install\nOutput: Installs package dependencies\n\nInput: mkdir foo\nOutput: Creates directory 'foo'",
         ),
     },
-    async execute(args: Args, ctx: ToolContext): Promise<string> {
+    async execute(args: Args, ctx: ToolContext): Promise<ToolResult> {
       const timeout = args.timeout ?? DEFAULT_TIMEOUT;
       const cwd = args.workdir ? resolve(ctx.directory, args.workdir) : ctx.directory;
 
@@ -116,9 +116,9 @@ export function createBashSandboxedTool(backend: SandboxBackend, profile: string
         promise,
         resolve: resolvePromise,
         reject: rejectPromise,
-      } = Promise.withResolvers<{ buf: string; code: number | null }>();
+      } = Promise.withResolvers<{ output: string; code: number | null }>();
 
-      let buf = "";
+      let output = "";
       let expired = false;
       let aborted = false;
       let settled = false;
@@ -138,10 +138,10 @@ export function createBashSandboxedTool(backend: SandboxBackend, profile: string
       };
 
       const onData = (chunk: Buffer) => {
-        buf += chunk.toString();
+        output += chunk.toString();
         ctx.metadata({
           metadata: {
-            output: preview(buf),
+            output: preview(output),
             exit: null,
             description: args.description,
           },
@@ -198,25 +198,23 @@ export function createBashSandboxedTool(backend: SandboxBackend, profile: string
           }
           if (aborted) meta.push("User aborted the command");
           if (meta.length > 0) {
-            buf += "\n\n<bash_metadata>\n" + meta.join("\n") + "\n</bash_metadata>";
+            output += "\n\n<bash_metadata>\n" + meta.join("\n") + "\n</bash_metadata>";
           }
 
-          resolvePromise({ buf, code });
+          resolvePromise({ output, code });
         });
       });
 
       const result = await promise;
 
-      ctx.metadata({
-        title: args.description,
+      return {
+        output: result.output,
         metadata: {
-          output: preview(result.buf),
+          output: preview(result.output),
           exit: result.code,
           description: args.description,
         },
-      });
-
-      return result.buf;
+      };
     },
   });
 }
