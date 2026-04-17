@@ -1,5 +1,7 @@
 export type SandboxBackend = "nono" | "fence" | "srt";
 
+const SUPPORTED_BACKENDS: ReadonlySet<string> = new Set<SandboxBackend>(["nono", "fence", "srt"]);
+
 type SandboxConfig = {
   sandbox: SandboxBackend;
   profile: string | undefined;
@@ -22,7 +24,8 @@ export function resolve(rawOptions: unknown): SandboxConfig {
     if (
       "sandbox" in rawOptions &&
       typeof rawOptions.sandbox === "string" &&
-      rawOptions.sandbox.length > 0
+      rawOptions.sandbox.length > 0 &&
+      SUPPORTED_BACKENDS.has(rawOptions.sandbox)
     ) {
       sandbox = rawOptions.sandbox as SandboxBackend;
     }
@@ -35,7 +38,11 @@ export function resolve(rawOptions: unknown): SandboxConfig {
     }
   }
 
-  if (typeof envSandbox === "string" && envSandbox.length > 0) {
+  if (
+    typeof envSandbox === "string" &&
+    envSandbox.length > 0 &&
+    SUPPORTED_BACKENDS.has(envSandbox)
+  ) {
     sandbox = envSandbox as SandboxBackend;
   }
   if (typeof envProfile === "string" && envProfile.length > 0) {
