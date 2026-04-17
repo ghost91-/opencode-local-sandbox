@@ -5,3 +5,7 @@ OpenCode plugin that adds a `bash_sandboxed` tool for running commands inside a 
 ## Package Management
 
 This project uses pnpm.
+
+## Commit Messages
+
+Do not use conventional commits (e.g. `fix:`, `feat:`). Use simple, descriptive commit messages.

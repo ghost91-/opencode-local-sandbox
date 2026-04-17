@@ -25,7 +25,19 @@ const server: Plugin = async ({ client }, rawOptions) => {
   const cfg = resolve(rawOptions);
   const detected = await detectBackend();
 
-  if (!detected) {
+  if (cfg.sandbox) {
+    const available = await isBinaryOnPath(cfg.sandbox);
+    if (!available) {
+      await client.app.log({
+        body: {
+          service: PLUGIN_NAME,
+          level: "warn",
+          message: `Configured sandbox backend '${cfg.sandbox}' not found on PATH. bash_sandboxed tool will not be registered.`,
+        },
+      });
+      return {};
+    }
+  } else if (!detected) {
     await client.app.log({
       body: {
         service: PLUGIN_NAME,
@@ -36,20 +48,7 @@ const server: Plugin = async ({ client }, rawOptions) => {
     return {};
   }
 
-  const backend = cfg.sandbox ?? detected;
-
-  if (backend !== detected) {
-    const available = await isBinaryOnPath(backend);
-    if (!available) {
-      await client.app.log({
-        body: {
-          service: PLUGIN_NAME,
-          level: "warn",
-          message: `Configured sandbox backend '${backend}' not found on PATH. Falling back to detected '${detected}'.`,
-        },
-      });
-    }
-  }
+  const backend = cfg.sandbox ?? detected!;
 
   return {
     tool: {

@@ -58,6 +58,13 @@ describe("resolve", () => {
     });
   });
 
+  it("ignores unsupported sandbox in options", () => {
+    assert.deepStrictEqual(resolve({ sandbox: "fooo" as any }), {
+      sandbox: "nono",
+      profile: "opencode",
+    });
+  });
+
   it("ignores non-string profile in options", () => {
     assert.deepStrictEqual(resolve({ profile: 42 }), {
       sandbox: "nono",
@@ -76,6 +83,14 @@ describe("resolve", () => {
     stubEnv("OLS_SANDBOX", "srt");
     assert.deepStrictEqual(resolve({ sandbox: "fence" }), {
       sandbox: "srt",
+      profile: undefined,
+    });
+  });
+
+  it("ignores unsupported OLS_SANDBOX env variable", () => {
+    stubEnv("OLS_SANDBOX", "fooo");
+    assert.deepStrictEqual(resolve({ sandbox: "fence" }), {
+      sandbox: "fence",
       profile: undefined,
     });
   });
