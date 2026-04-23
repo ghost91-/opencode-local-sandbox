@@ -75,6 +75,4 @@ jobs:
 
       - name: Publish to npm
         if: steps.version.outputs.has_changes == 'true' && inputs.dry_run == false
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: pnpm publish --access public --provenance --no-git-checks
