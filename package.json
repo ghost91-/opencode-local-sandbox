@@ -4,6 +4,9 @@
   "private": false,
   "description": "OpenCode plugin that adds a bash_sandboxed tool for running commands inside a local OS-level sandbox",
   "license": "MIT",
+  "repository": {
+    "url": "https://github.com/ghost91-/opencode-local-sandbox"
+  },
   "files": [
     "dist"
   ],
