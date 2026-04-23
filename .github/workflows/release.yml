@@ -52,6 +52,7 @@ jobs:
           git add -A
           git commit -m "release v${{ steps.version.outputs.version }}"
           git tag "v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
           git push origin main --follow-tags
 
       - name: Dry run summary
